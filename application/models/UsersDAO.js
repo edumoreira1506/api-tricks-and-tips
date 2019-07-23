@@ -26,6 +26,12 @@ function UsersDAO(connection){
 	this.searchByUsername = (username, callback) => {
 		this._connection.query('SELECT COUNT(id_user) AS quantity FROM users WHERE username = ?', username, callback);
 	}
+
+	this.login = (username, password, callback) => {
+		var password =  crypto.createHash('md5').update(password).digest('hex');
+
+		this._connection.query('SELECT token FROM users WHERE username = ? AND password = ?', [username, password], callback);
+	}
 }
 
 module.exports = function(){

@@ -1,7 +1,34 @@
 module.exports = app => {
 
-    const auth = (req, res) => {
-    	res.send('Hello world!')
+    const login = (req, res) => {
+    	if(!req.body.password || !req.body.username){
+            let response = {
+                status: false,
+                message: "Nome de usuário e senha são obrigatórios!"
+            }
+
+            res.send(response)
+        }else{
+            let connection = app.config.dbConnection();
+            let user = new app.application.models.UsersDAO(connection);
+
+            user.login(req.body.username, req.body.password, function(error, result){
+                if(result.length == 0){
+                    let response = {
+                        status: false,
+                        message: "Nome de usuário ou senha inválidos!"
+                    }
+                }else{
+                    let response = {
+                        status: true,
+                        message: "Login efetuado com sucesso!",
+                        token: result[0].token
+                    }
+                }
+
+                res.send(response)
+            }) 
+        }
     }
 
     const register = (req, res) => {
@@ -72,5 +99,23 @@ module.exports = app => {
         }
     }
 
-    return { auth, register }
+    const comment = (req, res) => {
+        let token = req.header('token');
+
+        let connection = app.config.dbConnection();
+        let tokenValidation = new app.application.models.TokensDAO(connection);
+
+        tokenValidation.isValid(token, function(error, result){
+            if(result[0].valid){
+                //comentar
+            }else{
+                let response = {
+                    status: false,
+                    message: 'Desculpe, você precisa estar logado para fazer comentários.'
+                }
+            }
+        }) 
+    }
+
+    return { login, register, comment }
 }
