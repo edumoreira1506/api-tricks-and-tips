@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 module.exports = app => {
 
     const login = (req, res) => {
@@ -96,6 +98,121 @@ module.exports = app => {
                     res.send(response)
                 }
             })            
+        }
+    }
+
+    const edit = (req, res) => {
+        if(!req.header('token')){
+            let response = {
+                status: false,
+                message: 'Token inválido.'
+            }
+
+            res.send(response)
+        }else{
+            let token = req.header('token');
+            let connection = app.config.dbConnection();
+            let tokenValidation = new app.application.models.TokensDAO(connection);
+
+            tokenValidation.isValid(token, function(error, result){
+                if(result[0].valid){
+                    let user = new app.application.models.UsersDAO(connection);
+
+                    user.searchByToken(token, function(error, result){
+                        if(error){
+                            let response = {
+                                status: false,
+                                message: 'Desculpe, erro interno no servidor.'
+                            }
+        
+                            res.send(response)
+                        }else{
+                            let email = req.body.email ? req.body.email : result[0].email
+                            let password = req.body.password ?  crypto.createHash('md5').update(req.body.password).digest('hex') : result[0].password
+                            let description = req.body.description ? req.body.description : result[0].description
+                            let imagePath = req.body.imagePath ? req.body.imagePath : result[0].image_path
+
+                            if(req.body.email){
+                                user.countByEmailToken(email, token, function(error, result){
+                                    if(result[0].quantity == 0){
+                                        user.edit(email, password, description, imagePath, token, function(error, result){
+                                            if(error){
+                                                let response = {
+                                                    status: false,
+                                                    mensagem: "Desculpe, erro interno no servidor"
+                                                }
+                                            }else{
+                                                let response = {
+                                                    status: true
+                                                }
+                                            }
+                                        })
+                                    }else{
+                                        let response = {
+                                            status: false,
+                                            message: "E-mail já está por outra pessoa em uso!"
+                                        }
+                            
+                                        res.send(response)
+                                    }
+                                })  
+                            }else{
+
+                            }
+                        }
+                    })
+                }else{
+                    let response = {
+                        status: false,
+                        message: 'Desculpe, token inválido.'
+                    }
+
+                    res.send(response)
+                }
+            })
+        }
+    }
+
+    const drop = (req, res) => {
+        if(!req.header('token')){
+            let response = {
+                status: false,
+                message: 'Campos obrigatórios: Token.'
+            }
+    
+            res.send(response)
+        }else{
+            let token = req.header('token');
+            let connection = app.config.dbConnection();
+            let tokenValidation = new app.application.models.TokensDAO(connection);
+    
+            tokenValidation.isValid(token, function(error, result){
+                if(result[0].valid){
+                    let user = new app.application.models.UsersDAO(connection);
+
+                    user.drop(token, function(error, result){
+                        if(error){
+                            let response = {
+                                status: false,
+                                message: 'Erro interno no servidor!'
+                            }
+                        }else{
+                            let response = {
+                                status: true,
+                            }
+                        }
+
+                        res.send(response)
+                    })
+                }else{
+                    let response = {
+                        status: false,
+                        message: 'Desculpe, token inválido.'
+                    }
+    
+                    res.send(response)
+                }
+            })
         }
     }
 
@@ -273,5 +390,5 @@ module.exports = app => {
         }
     }
 
-    return { login, register, comment, editComment, deleteComment }
+    return { login, register, edit, comment, editComment, deleteComment, drop }
 }

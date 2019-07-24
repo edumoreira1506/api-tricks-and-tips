@@ -19,8 +19,20 @@ function UsersDAO(connection){
 		,callback);
 	}
 
+	this.edit = (email, password, description, imagePath, token, callback) => {
+		this._connection.query('UPDATE comments SET email = ?, password = ?, description = ? WHERE token = ?', [email, password, description, token], callback);
+	}
+
+	this.drop = (token, callback) => {
+		this._connection.query('UPDATE users SET deleted = 1 WHERE token = ?', token, callback);
+	}
+
 	this.countByEmail = (email, callback) => {
 		this._connection.query('SELECT COUNT(id_user) AS quantity FROM users WHERE email = ?', email, callback);
+	}
+
+	this.countByEmailToken = (email, token, callback) => {
+		this._connection.query('SELECT COUNT(id_user) AS quantity FROM users WHERE email = ? AND token <> ?', [email, token], callback);
 	}
 
 	this.countByUsername = (username, callback) => {
