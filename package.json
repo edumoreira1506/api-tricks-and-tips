@@ -17,11 +17,13 @@
   },
   "homepage": "https://github.com/edumoreira1506/api-tricks-and-tips#readme",
   "dependencies": {
+    "axios": "^0.19.0",
     "body-parser": "^1.19.0",
     "connect-multiparty": "^2.2.0",
     "consign": "^0.1.6",
     "crypto": "^1.0.1",
     "express": "^4.17.1",
+    "express-session": "^1.16.2",
     "mysql": "^2.17.1",
     "nodemon": "^1.19.1"
   }
