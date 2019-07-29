@@ -20,7 +20,7 @@ function UsersDAO(connection){
 	}
 
 	this.edit = (email, password, description, imagePath, token, callback) => {
-		this._connection.query('UPDATE comments SET email = ?, password = ?, description = ? WHERE token = ?', [email, password, description, token], callback);
+		this._connection.query('UPDATE users SET email = ?, password = ?, description = ? WHERE token = ?', [email, password, description, token], callback);
 	}
 
 	this.drop = (token, callback) => {
@@ -42,7 +42,7 @@ function UsersDAO(connection){
 	this.login = (username, password, callback) => {
 		var password =  crypto.createHash('md5').update(password).digest('hex');
 
-		this._connection.query('SELECT token FROM users WHERE username = ? AND password = ? AND deleted = 0', [username, password], callback);
+		this._connection.query('SELECT token, username FROM users WHERE username = ? AND password = ? AND deleted = 0', [username, password], callback);
 	}
 
 	this.searchByToken = (token, callback) => {
