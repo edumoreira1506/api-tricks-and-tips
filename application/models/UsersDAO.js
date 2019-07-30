@@ -3,7 +3,7 @@ const crypto = require('crypto');
 function UsersDAO(connection){
 	this._connection = connection;
 
-	this.insert = (user, callback) => {
+	this.insert = (user, callback, admin = false) => {
 		let email = user.email;
 		let password = crypto.createHash('md5').update(user.password).digest('hex');
 		let username = user.username;
@@ -14,9 +14,15 @@ function UsersDAO(connection){
 		let bornDate = user.bornDate;
 		let token = crypto.createHash('md5').update(`${user.username}.${Date.now()}.comum`).digest('hex');
 
-		this._connection.query('INSERT INTO users (token, email, password, username, description, born_date) VALUES (?, ?, ?, ?, ?, ?)', 
-		[token, email, password, username, description, bornDate]
-		,callback);
+		if(admin){
+			this._connection.query('INSERT INTO users (admin, token, email, password, username, description, born_date) VALUES (1, ?, ?, ?, ?, ?, ?)', 
+			[token, email, password, username, description, bornDate]
+			,callback);
+		}else{
+			this._connection.query('INSERT INTO users (token, email, password, username, description, born_date) VALUES (?, ?, ?, ?, ?, ?)', 
+			[token, email, password, username, description, bornDate]
+			,callback);
+		}
 	}
 
 	this.edit = (email, password, description, imagePath, token, callback) => {
@@ -42,7 +48,7 @@ function UsersDAO(connection){
 	this.login = (username, password, callback) => {
 		var password =  crypto.createHash('md5').update(password).digest('hex');
 
-		this._connection.query('SELECT token, username FROM users WHERE username = ? AND password = ? AND deleted = 0', [username, password], callback);
+		this._connection.query('SELECT token, username, admin FROM users WHERE username = ? AND password = ? AND deleted = 0', [username, password], callback);
 	}
 
 	this.searchByToken = (token, callback) => {

@@ -27,7 +27,8 @@ module.exports = app => {
                         status: true,
                         message: "Login efetuado com sucesso!",
                         token: result[0].token,
-                        username: result[0].username
+                        username: result[0].username,
+                        admin: result[0].admin,
                     }
 
                     res.send(response)
