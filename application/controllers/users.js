@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const formidable = require('formidable')
 
 module.exports = app => {
 
@@ -38,6 +39,27 @@ module.exports = app => {
     }
 
     const register = (req, res) => {
+        let form = new formidable.IncomingForm();
+
+        // form.parse(req);
+
+        // console.log(form)
+
+        form.parse(req.body, function(err, fields, files) {
+            console.log(fields)
+            console.log(files)
+        });
+
+        form.on('fileBegin', function (name, file){
+            console.log(file)
+            console.log('entrou aqui')
+            file.path = __dirname + file.name;
+        });
+    
+        form.on('file', function (name, file){
+            console.log('Uploaded ' + file.name);
+        });
+        
         if (!req.body.email || !req.body.password || !req.body.confirmPassword || !req.body.username || !req.body.bornDate) {
             let response = {
                 status: false,
