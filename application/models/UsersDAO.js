@@ -8,14 +8,13 @@ function UsersDAO(connection){
 		let password = crypto.createHash('md5').update(user.password).digest('hex');
 		let username = user.username;
 		let description = user.description == null || user.description == undefined ? '' : user.description;
-
-		//let imagePath = user.imagePath == undefined || user.imagePath == '' ? null : 
-		
+		let imagePath = user.imagePath == null || user.imagePath == undefined || user.imagePath == '' ? null : user.imagePath;		
 		let bornDate = user.bornDate;
+
 		let token = crypto.createHash('md5').update(`${user.username}.${Date.now()}.comum`).digest('hex');
 
-		this._connection.query('INSERT INTO users (token, email, password, username, description, born_date) VALUES (?, ?, ?, ?, ?, ?)', 
-		[token, email, password, username, description, bornDate]
+		this._connection.query('INSERT INTO users (token, email, password, username, description, born_date, image_path) VALUES (?, ?, ?, ?, ?, ?, ?)', 
+		[token, email, password, username, description, bornDate, imagePath]
 		,callback);
 	}
 
@@ -41,8 +40,7 @@ function UsersDAO(connection){
 
 	this.login = (username, password, callback) => {
 		var password =  crypto.createHash('md5').update(password).digest('hex');
-
-		this._connection.query('SELECT token FROM users WHERE username = ? AND password = ? AND deleted = 0', [username, password], callback);
+		this._connection.query('SELECT token,username,admin FROM users WHERE username = ? AND password = ? AND deleted = 0', [username, password], callback);
 	}
 
 	this.searchByToken = (token, callback) => {

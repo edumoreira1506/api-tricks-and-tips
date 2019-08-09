@@ -20,15 +20,19 @@ module.exports = app => {
                         status: false,
                         message: "Nome de usuário ou senha inválidos!"
                     }
+
+                    res.send(response)
                 }else{
                     let response = {
                         status: true,
                         message: "Login efetuado com sucesso!",
-                        token: result[0].token
+                        token: result[0].token,
+                        username: result[0].username,
+                        admin: result[0].admin
                     }
-                }
 
-                res.send(response)
+                    res.send(response)
+                }
             }) 
         }
     }
