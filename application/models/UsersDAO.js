@@ -46,7 +46,7 @@ function UsersDAO(connection){
 
 	this.login = (username, password, callback) => {
 		var password =  crypto.createHash('md5').update(password).digest('hex');
-		this._connection.query('SELECT token, username, admin FROM users WHERE username = ? AND password = ? AND deleted = 0', [username, password], callback);
+		this._connection.query('SELECT token, username, admin, image_path FROM users WHERE username = ? AND password = ? AND deleted = 0', [username, password], callback);
 	}
 
 	this.searchByToken = (token, callback) => {
